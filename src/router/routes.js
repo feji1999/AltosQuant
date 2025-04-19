@@ -1,36 +1,25 @@
-import { useAuthStore } from 'src/stores/auth';
+import MainLayout from 'layouts/MainLayout.vue'
+import Dashboard from 'pages/Dashboard.vue'
+import TeamChat from 'pages/TeamChat.vue'
+import Calculator from 'pages/Calculator.vue'
+import Indicator from 'pages/Indicator.vue'
+import TradesBoard from 'pages/TradesBoard.vue'
+import Login from 'pages/Login.vue'
 
-const routes = [
+export default [
   {
     path: '/',
-    redirect: '/login'
+    component: MainLayout,
+    children: [
+      { path: 'dashboard', component: Dashboard },
+      { path: 'chat', component: TeamChat },
+      { path: 'calculator', component: Calculator },
+      { path: 'indicator', component: Indicator },
+      { path: 'trades', component: TradesBoard }
+    ]
   },
   {
     path: '/login',
-    component: () => import('pages/LoginPage.vue')
-  },
-  {
-    path: '/signup',
-    component: () => import('pages/SignupPage.vue')
-  },
-  {
-    path: '/dashboard',
-    component: () => import('pages/Dashboard.vue'),
-    meta: { requiresAuth: true }
+    component: Login
   }
-];
-
-// Add Navigation Guard
-export default routes.map(route => {
-  return {
-    ...route,
-    beforeEnter: (to, from, next) => {
-      const auth = useAuthStore();
-      if (to.meta.requiresAuth && !auth.user) {
-        next('/login');
-      } else {
-        next();
-      }
-    }
-  };
-});
+]
