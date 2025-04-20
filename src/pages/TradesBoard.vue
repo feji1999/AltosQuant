@@ -1,9 +1,10 @@
 <template>
-  <q-page class="q-pa-md bg-grey-2">
+  <q-page class="q-pa-md bg-grey-2 kanban-page">
     <div class="q-mb-md">
       <q-btn label="➕ Add New Trade" color="primary" @click="showModal = true" />
     </div>
 
+    <!-- Add New Trade Modal -->
     <q-dialog v-model="showModal">
       <q-card style="min-width: 350px">
         <q-card-section>
@@ -22,6 +23,23 @@
       </q-card>
     </q-dialog>
 
+    <!-- View Trade Modal -->
+    <q-dialog v-model="viewModal">
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">{{ selectedTrade.title }}</div>
+          <div class="text-subtitle2 text-grey">{{ selectedTrade.date }}</div>
+        </q-card-section>
+        <q-card-section>
+          <div class="text-body1 q-mt-sm">{{ selectedTrade.note }}</div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn label="Close" flat v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Kanban Columns -->
     <div class="row q-col-gutter-md">
       <KanbanColumn
         v-for="col in columns"
@@ -31,17 +49,16 @@
         :color="col.color"
         :column="col.id"
         @move="handleMove"
+        @view="viewTrade"
       />
     </div>
   </q-page>
 </template>
 
-
-
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { uid } from 'quasar'
 import KanbanColumn from 'components/KanbanColumn.vue'
-import { uid } from 'quasar' // for unique ID generation
 
 const columns = [
   { id: 'watchlist', title: '📋 Watchlist', color: 'blue' },
@@ -56,7 +73,20 @@ const trades = ref({
 })
 
 const showModal = ref(false)
+const viewModal = ref(false)
 const newTrade = ref({ title: '', note: '' })
+const selectedTrade = ref({})
+
+// Load from localStorage on start
+onMounted(() => {
+  const saved = localStorage.getItem('trades')
+  if (saved) trades.value = JSON.parse(saved)
+})
+
+// Save to localStorage when changes occur
+watch(trades, (newVal) => {
+  localStorage.setItem('trades', JSON.stringify(newVal))
+}, { deep: true })
 
 const handleMove = (card, from, to) => {
   trades.value[from] = trades.value[from].filter(item => item.id !== card.id)
@@ -69,7 +99,8 @@ const addTrade = () => {
   const tradeCard = {
     id: uid(),
     title: newTrade.value.title,
-    note: newTrade.value.note
+    note: newTrade.value.note,
+    date: new Date().toLocaleString()
   }
 
   trades.value.watchlist.push(tradeCard)
@@ -77,8 +108,12 @@ const addTrade = () => {
   newTrade.value.note = ''
   showModal.value = false
 }
-</script>
 
+const viewTrade = (trade) => {
+  selectedTrade.value = trade
+  viewModal.value = true
+}
+</script>
 
 <style scoped>
 .kanban-page {

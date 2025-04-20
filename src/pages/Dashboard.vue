@@ -43,6 +43,7 @@
       <q-btn to="/chat" label="Go to Team Chat" color="secondary" />
       <q-btn to="/calculator" label="Compound Calculator" color="secondary" />
       <q-btn to="/indicator" label="Hourly Indicator" color="secondary" />
+      <q-btn to="/expert-advisor" label="Expert Advisor" />
       <q-btn to="/trades" label="Trades Board" color="secondary" />
     </div>
   </q-page>

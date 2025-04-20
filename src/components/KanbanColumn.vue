@@ -14,19 +14,21 @@
         @end="onDragEnd"
       >
         <template #item="{ element }">
-          <q-card class="q-pa-sm bg-white">
+          <q-card class="q-pa-sm bg-white" @click="emit('view', element)" style="cursor: pointer">
             <div class="text-caption text-bold">{{ element.title }}</div>
-            <div class="text-caption text-bold">{{ element.pair }} ({{ element.direction }})</div>
-            <div class="text-caption">Entry: {{ element.entry }}</div>
-            <div class="text-caption">TP: {{ element.tp }} | SL: {{ element.sl }}</div>
-            <div class="text-caption text-italic">RRR: {{ element.rrr }}</div>
-            <div class="text-caption text-grey">{{ element.note }}</div>
+            <div class="text-caption">{{ element.pair || 'N/A' }} ({{ element.direction || '?' }})</div>
+            <div class="text-caption">Entry: {{ element.entry || '—' }}</div>
+            <div class="text-caption">TP: {{ element.tp || '—' }} | SL: {{ element.sl || '—' }}</div>
+            <div class="text-caption text-italic">RRR: {{ element.rrr || '—' }}</div>
+            <div class="text-caption text-grey ellipsis">{{ element.note || 'No note yet.' }}</div>
+            <!-- Inline note editing if needed -->
             <q-input
               v-model="element.note"
               dense
               filled
               label="Note"
               class="q-mt-sm"
+              @click.stop
             />
           </q-card>
         </template>
@@ -45,7 +47,7 @@ defineProps({
   column: String
 })
 
-const emit = defineEmits(['move'])
+const emit = defineEmits(['move', 'view'])
 
 const onDragEnd = (evt) => {
   if (evt.from !== evt.to) {

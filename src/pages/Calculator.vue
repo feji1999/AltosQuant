@@ -8,6 +8,14 @@
         <q-input v-model.number="balance" label="Starting Balance ($)" type="number" outlined />
         <q-input v-model.number="dailyReturn" label="Daily % Win (e.g., 2)" type="number" outlined class="q-mt-sm" />
         <q-input v-model.number="days" label="Number of Days" type="number" outlined class="q-mt-sm" />
+        <q-select
+          v-model="interval"
+          :options="['Daily', 'Weekly']"
+          label="Compound Interval"
+          outlined
+          class="q-mt-sm"
+        />
+
 
         <q-btn label="Calculate" type="submit" color="primary" class="q-mt-md" />
       </q-form>
@@ -18,7 +26,7 @@
         <q-markup-table flat bordered>
           <thead>
             <tr>
-              <th>Day</th>
+              <th>{{ interval === 'Weekly' ? 'Week' : 'Day' }}</th>
               <th>Balance ($)</th>
             </tr>
           </thead>
@@ -40,14 +48,18 @@ import { ref } from 'vue';
 const balance = ref(1000);
 const dailyReturn = ref(2); // % return
 const days = ref(30);
+const interval = ref('Daily');
 const results = ref([]);
 
 const calculateGrowth = () => {
   let current = balance.value;
   results.value = [];
 
-  for (let i = 0; i < days.value; i++) {
-    current += (current * dailyReturn.value) / 100;
+  let period = interval.value === 'Weekly' ? Math.floor(days.value / 7) : days.value;
+  let rate = interval.value === 'Weekly' ? dailyReturn.value * 7 : dailyReturn.value;
+
+  for (let i = 0; i < period; i++) {
+    current += (current * rate) / 100;
     results.value.push(current);
   }
 };

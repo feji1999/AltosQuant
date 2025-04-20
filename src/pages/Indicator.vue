@@ -37,7 +37,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 
-const pairs = ['USD/JPY', 'EUR/USD', 'GBP/USD'];
+const pairs = ['USD/JPY', 'EUR/USD', 'GBP/USD', 'AUD/USD','USD/CAD','USD/CHF','NZD/USD','AUD/CAD','CAD/JPY','BTC/USD'];
 const selectedPair = ref('');
 const spotRate = ref('');
 const note = ref('');
@@ -107,6 +107,24 @@ const runStrategy = () => {
   candle.textContent = match?.text || "Neutral";
 
   chart.appendChild(candle);
+
+  // Construct trade entry object
+  const tradeEntry = {
+    pair: selectedPair.value,
+    note: note.value,
+    rate: spotRate.value,
+    signal: direction >= 0 ? 'BUY' : 'SELL',
+    timestamp: new Date().toISOString()
+  };
+
+  // Retrieve existing trade entries
+  const existingEntries = JSON.parse(localStorage.getItem('hourlyTrades') || '[]');
+
+  // Add new entry to the beginning
+  existingEntries.unshift(tradeEntry);
+
+  // Save back to localStorage
+  localStorage.setItem('hourlyTrades', JSON.stringify(existingEntries));
 };
 </script>
 
